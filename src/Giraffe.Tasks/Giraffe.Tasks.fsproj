@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Giraffe.Tasks</AssemblyName>
+    <Version>0.1.0-beta-010</Version>
+    <Description>A task computation expression which works natively with .NET's Task objects from an F# application.</Description>
+    <Copyright>Copyright 2017 Dustin Moris Gorski</Copyright>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <Authors>Dustin Moris Gorski and contributors</Authors>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <WarningsAsErrors>1</WarningsAsErrors>
+    <Optimize>True</Optimize>
+    <OutputType>Library</OutputType>
+    <PackageId>Giraffe.Tasks</PackageId>
+    <PackageTags>Giraffe;Tasks;Async;FSharp;Computation;Expression;Asynchronous</PackageTags>
+    <PackageReleaseNotes>https://raw.githubusercontent.com/giraffe-fsharp/Giraffe.Tasks/master/RELEASE_NOTES.md</PackageReleaseNotes>
+    <PackageIconUrl>https://raw.githubusercontent.com/giraffe-fsharp/Giraffe/master/giraffe-64x64.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/giraffe-fsharp/Giraffe.Tasks</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/giraffe-fsharp/Giraffe.Tasks/master/LICENSE</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/giraffe-fsharp/Giraffe.Tasks</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <NetStandardImplicitPackageVersion>2.0</NetStandardImplicitPackageVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Tasks.fs" />
+  </ItemGroup>
+
+</Project>
