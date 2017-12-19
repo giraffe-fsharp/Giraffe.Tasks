@@ -14,6 +14,7 @@ A task computation expression which works natively with .NET's Task objects from
 ## Table of contents
 
 - [Documentation](#documentation)
+- [Nightly builds and NuGet feed](#nightly-builds-and-nuget-feed)
 - [More information](#more-information)
 - [License](#license)
 
@@ -45,6 +46,18 @@ let readFileAndDoSomething (filePath : string) =
 ```
 
 The `task {}` computation expression also allows you to await an `Async<'T>` workflow without having to convert it into a `Task<'T>` beforehand.
+
+## Nightly builds and NuGet feed
+
+All official Giraffe packages are published to the official and public NuGet feed.
+
+Unofficial builds (such as pre-release builds from the `develop` branch and pull requests) produce unofficial pre-release NuGet packages which can be pulled from the project's public NuGet feed on AppVeyor:
+
+```
+https://ci.appveyor.com/nuget/giraffe-tasks
+```
+
+If you add this source to your NuGet CLI or project settings then you can pull unofficial NuGet packages for quick feature testing or urgent hot fixes.
 
 ## More information
 
