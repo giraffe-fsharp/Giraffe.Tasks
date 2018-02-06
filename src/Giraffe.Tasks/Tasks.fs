@@ -104,6 +104,18 @@ module TaskBuilder =
                 else
                     Await (awt, fun () -> continuation (^awt : (member GetResult : unit -> ^inp)(awt)))
 
+        static member inline GenericAwaitUnit< ^abl, ^awt, ^inp
+                                            when ^abl : (member GetAwaiter : unit -> ^awt)
+                                            and ^awt :> ICriticalNotifyCompletion
+                                            and ^awt : (member get_IsCompleted : unit -> bool)
+                                            and ^awt : (member GetResult : unit -> unit) >
+            (abl : ^abl, continuation : unit -> 'out Step) : 'out Step =
+                let awt = (^abl : (member GetAwaiter : unit -> ^awt)(abl)) // get an awaiter from the awaitable
+                if (^awt : (member get_IsCompleted : unit -> bool)(awt)) then // shortcut to continue immediately
+                    continuation ()
+                else
+                    Await (awt, fun () -> continuation ())
+
         static member inline GenericAwaitConfigureFalse< ^tsk, ^abl, ^awt, ^inp
                                                         when ^tsk : (member ConfigureAwait : bool -> ^abl)
                                                         and ^abl : (member GetAwaiter : unit -> ^awt)
@@ -113,6 +125,18 @@ module TaskBuilder =
             (tsk : ^tsk, continuation : ^inp -> 'out Step) : 'out Step =
                 let abl = (^tsk : (member ConfigureAwait : bool -> ^abl)(tsk, false))
                 Binder<'out>.GenericAwait(abl, continuation)
+
+        static member inline GenericAwaitUnitConfigureFalse< ^tsk, ^abl, ^awt, ^inp
+                                                        when ^tsk : (member ConfigureAwait : bool -> ^abl)
+                                                        and ^abl : (member GetAwaiter : unit -> ^awt)
+                                                        and ^awt :> ICriticalNotifyCompletion
+                                                        and ^awt : (member get_IsCompleted : unit -> bool)
+                                                        and ^awt : (member GetResult : unit -> unit) >
+            (tsk : ^tsk, continuation : unit -> 'out Step) : 'out Step =
+                let abl = (^tsk : (member ConfigureAwait : bool -> ^abl)(tsk, false))
+                Binder<'out>.GenericAwaitUnit(abl, continuation)
+
+
 
     /// Special case of the above for `Task<'a>`. Have to write this out by hand to avoid confusing the compiler
     /// trying to decide between satisfying the constraints with `Task` or `Task<'a>`.
@@ -283,7 +307,14 @@ module Tasks =
     type TaskBuilder.ContextInsensitiveTaskBuilder with
         member inline this.ReturnFrom(taskLike) =
             TaskBuilder.Binder<_>.GenericAwait(taskLike, TaskBuilder.ret)
-        member inline this.Bind(taskLike, continuation : _ -> 'a TaskBuilder.Step) : 'a TaskBuilder.Step =
+
+        member inline this.ReturnFrom(taskLike) =
+            TaskBuilder.Binder<_>.GenericAwaitUnit(taskLike, TaskBuilder.ret)
+
+        member inline this.Bind(taskLike, continuation : unit -> 'a TaskBuilder.Step) : 'a TaskBuilder.Step =
+            TaskBuilder.Binder<'a>.GenericAwaitUnit(taskLike, continuation)
+
+        member inline this.Bind(taskLike, continuation : 'v -> 'a TaskBuilder.Step) : 'a TaskBuilder.Step =
             TaskBuilder.Binder<'a>.GenericAwait(taskLike, continuation)
 
     [<AutoOpen>]
