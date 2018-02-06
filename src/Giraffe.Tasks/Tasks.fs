@@ -323,5 +323,10 @@ module Tasks =
         type TaskBuilder.ContextInsensitiveTaskBuilder with
             member inline this.ReturnFrom(configurableTaskLike) =
                 TaskBuilder.Binder<_>.GenericAwaitConfigureFalse(configurableTaskLike, TaskBuilder.ret)
+            member inline this.ReturnFrom(configurableTaskLike) =
+                TaskBuilder.Binder<_>.GenericAwaitUnitConfigureFalse(configurableTaskLike, TaskBuilder.ret)
+            
             member inline this.Bind(configurableTaskLike, continuation : _ -> 'a TaskBuilder.Step) : 'a TaskBuilder.Step =
                 TaskBuilder.Binder<'a>.GenericAwaitConfigureFalse(configurableTaskLike, continuation)
+            member inline this.Bind(configurableTaskLike, continuation : _ -> 'a TaskBuilder.Step) : 'a TaskBuilder.Step =
+                TaskBuilder.Binder<'a>.GenericAwaitUnitConfigureFalse(configurableTaskLike, continuation)
