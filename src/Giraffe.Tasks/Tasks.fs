@@ -36,24 +36,10 @@ module TaskBuilder =
         /// The continuation we left off awaiting on our last MoveNext().
         let mutable continuation = fun () -> firstStep
         /// Returns next pending awaitable or null if exiting (including tail call).
-        let nextAwaitable() =
-            try
-                match continuation() with
-                | Return r ->
-                    methodBuilder.SetResult(Task.FromResult(r))
-                    null
-                | ReturnFrom t ->
-                    methodBuilder.SetResult(t)
-                    null
-                | Await (await, next) ->
-                    continuation <- next
-                    await
-            with
-            | exn ->
-                methodBuilder.SetException(exn)
-                null
         let mutable self = this
 
+        let mutable curAwait = Unchecked.defaultof<ICriticalNotifyCompletion>
+        
         /// Start execution as a `Task<Task<'a>>`.
         member __.Run() =
             methodBuilder.Start(&self)
@@ -63,10 +49,20 @@ module TaskBuilder =
             /// Proceed to one of three states: result, failure, or awaiting.
             /// If awaiting, MoveNext() will be called again when the awaitable completes.
             member __.MoveNext() =
-                let mutable await = nextAwaitable()
-                if not (isNull await) then
-                    // Tell the builder to call us again when this thing is done.
-                    methodBuilder.AwaitUnsafeOnCompleted(&await, &self)
+                try
+                    match continuation() with
+                    | Return r ->
+                        methodBuilder.SetResult(Task.FromResult(r))
+                    | ReturnFrom t ->
+                        methodBuilder.SetResult(t)
+                    | Await (await, next) ->
+                        curAwait <- await  // HACK !?!
+                        continuation <- next
+                        methodBuilder.AwaitUnsafeOnCompleted(&curAwait, &self)
+                with
+                    | exn ->
+                        methodBuilder.SetException(exn)
+
             member __.SetStateMachine(_) = () // Doesn't really apply since we're a reference type.
 
     let unwrapException (agg : AggregateException) =
